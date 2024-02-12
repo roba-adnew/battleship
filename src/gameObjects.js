@@ -1,5 +1,11 @@
 // module.exports = { Ship, Gameboard }; 
 
+function coordMatches(coord1, coord2) {
+    const xAvail = coord1[0] === coord2[0];
+    const yAvail = coord1[1] === coord2[1];
+    return xAvail && yAvail
+}
+
 function Ship(length) {
     
     let hits = 0;
@@ -33,12 +39,6 @@ function Gameboard() {
         return validX && validY;
     }
 
-    function coordMatches(coord1, coord2) {
-        const xAvail = coord1[0] === coord2[0];
-        const yAvail = coord1[1] === coord2[1];
-        return xAvail && yAvail
-    }
-
     function findSlot(ship, shipObjects) {
 
         function locationAvail(coord, shipObjects) {
@@ -58,15 +58,15 @@ function Gameboard() {
 
         const layoutDirections = [[0,1],[0,-1],[-1,0],[1,0]]
         let slot;
-        let slotNotOnBoard = true;
+        let isBadSlot = true;
         
         do {
             slot = [];
             const rand = Math.round(Math.random() * 3);
             const [xDir, yDir] = layoutDirections[rand];
 
-            let xStart = Math.round(Math.random() * 9) % 9;
-            let yStart = Math.round(Math.random() * 9) % 9;
+            let [xStart, yStart] = Array
+                .from({length: 2}, () => Math.round(Math.random() * 9));
 
             for (let i = 0; i < ship.length; i++) {
                 const xPos = xStart + (i * xDir);
@@ -79,9 +79,9 @@ function Gameboard() {
                 slot.push(pos);
             }
 
-            slotNotOnBoard = slot.length !== ship.length;
+            isBadSlot = slot.length !== ship.length;
         }
-        while (slotNotOnBoard)
+        while (isBadSlot)
 
         return slot;
     }
@@ -104,6 +104,7 @@ function Gameboard() {
         const alreadyHit = allHits.some((hit) => coordMatches(hit, coord));
         if (alreadyHit) return false;
 
+        
         let foundShip = false;
         for (let ship of shipObjects) {
             const hitSpace = ship.slot
@@ -158,6 +159,40 @@ function Gameboard() {
     return { receiveAttack, printPrivateBoard, printPublicBoard, allShipsSunk }
 }
 
-a = Gameboard();
-a.printPrivateBoard();
-a.printPublicBoard();
+function Player(computerPlayer) {
+    function generateHit() {
+        if (!computerPlayer) return;
+
+        const attemptedHits = [];
+        let hit = Array
+            .from({length: 2}, () => Math.round(Math.random() * 9));
+
+        let isHitGood = false;
+
+        do {
+            let alreadyTried = attemptedHits.some((prevHit) => { 
+                return coordMatches(prevHit, hit) 
+            });
+
+            if (alreadyTried) {
+                hit = Array
+                    .from({length: 2}, () => Math.round(Math.random() * 9));
+            }
+            else {
+                attemptedHits.push(hit)
+                isHitGood = true;
+            }
+        }
+        while(!isHitGood)
+        
+        return hit        
+    }
+
+    
+    const board = Gameboard();
+
+    return { board, generateHit }
+}
+
+a = Player('a');
+console.log(a.generateHit());
