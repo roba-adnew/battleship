@@ -9,24 +9,17 @@ function Ship(length) {
     return { length, hit, isSunk, set location(loc) { return loc } }
 }
 
-
+function Gameboard() {
     const DIM = 10;
     const shipLengths = [4,3,3,2,2,2,1,1,1,1];
 
     function createBoard() {
-        let board = [];
+        let board = Array(DIM)
+            .fill()
+            .map(() => Array(DIM).fill(' '));
 
-        for (let i = 0; i < DIM; i++) {
-            const row = [];
-            board.push(row);
-            for (let j = 0; j < DIM; j++) {
-                board[i][j] = ' '
-            }
-        }
         return board;
     }
-
-    function printBoard() { console.table(privateBoard) };
 
     function isOnBoard(coord) {
         const validX = coord[0] >= 0 && coord[0] < DIM; 
@@ -42,14 +35,15 @@ function Ship(length) {
 
     function findSlot(ship, shipLocations) {
         function locationAvail(coord, shipLocations) {
-            for (let ship in shipLocations) {
-                for (let space of shipLocations[ship]) {
-                    if (coordMatches(coord, space)) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            const allLocations = [...shipLocations.values()];
+            if (allLocations.length === 0) return true;
+
+            const isSlotClear = allLocations
+                .every((location) => { return location
+                .every((space) => { return !coordMatches(coord,space) })
+            })
+
+            return isSlotClear;
         }
 
         const layoutDirections = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -64,7 +58,6 @@ function Ship(length) {
             let xStart = Math.round(Math.random() * 9) % 9;
             let yStart = Math.round(Math.random() * 9) % 9;
 
-            
             for (let i = 0; i < ship.length; i++) {
                 const xPos = xStart + (i * xDir);
                 const yPos = yStart + (i * yDir);
@@ -87,9 +80,7 @@ function Ship(length) {
         const shipObjects = [];
         shipLengths.map((length) => {shipObjects.push(Ship(length))})
         const ships = new Map()
-        for (let ship of shipObjects) {
-            ships.set(ship,findSlot(ship, ships));
-        }
+        shipObjects.forEach((ship) => ships.set(ship,findSlot(ship, ships)))
         return ships;
     }
 
@@ -120,29 +111,48 @@ function Ship(length) {
 
         if(!foundShip) hitSpaces.openSpaces.push(coord);
     
-        updatePrivateBoard(privateBoard)
+        updatePrivateBoard(privateBoard);
+        updatePublicBoard(publicBoard);
         return true;
+    }
+
+    function allShipsSunk() {
+        const allShips = [...shipInstances.keys()]
+        const allSunk = allShips.some((ship) => { ship.isSunk() })
+        return allSunk
     }
 
     const privateBoard = createBoard();
     function updatePrivateBoard(privateBoard) {
-        for (const [ship,location] of shipInstances) {
-            location.forEach(([x,y]) => privateBoard[x][y] = 'T');
-        }
+        const allLocations = [...shipInstances.values()]
+        allLocations.
+            forEach((location) => {
+                location.forEach(([x,y]) => privateBoard[x][y] = 'T');
+            });
         hitSpaces.shipSpaces.forEach(([x,y]) => privateBoard[x][y] = 'X');
         hitSpaces.openSpaces.forEach(([x,y]) => privateBoard[x][y] = 'O');
 
         return privateBoard;
     }
 
+    const publicBoard = createBoard();
+    function updatePublicBoard(publicBoard) {
+        hitSpaces.shipSpaces.forEach(([x,y]) => publicBoard[x][y] = 'X');
+        hitSpaces.openSpaces.forEach(([x,y]) => publicBoard[x][y] = 'O');
+
+        return publicBoard;
+    }
+
+    function printPrivateBoard() { console.table(privateBoard) };
+    function printPublicBoard() { console.table(publicBoard) };
+
+     
+    return { receiveAttack, printPrivateBoard, printPublicBoard, allShipsSunk }
+}
 
 
-printBoard();
-receiveAttack([1,2]);
-receiveAttack([4,5]);
-receiveAttack([6,7]);
-receiveAttack([0,9]);
-receiveAttack([2,4]);
-receiveAttack([3,4]);
-receiveAttack([3,5]);
-printBoard();
+
+a = Gameboard();
+a.receiveAttack([0,0]);
+a.printPrivateBoard();
+a.printPublicBoard();
