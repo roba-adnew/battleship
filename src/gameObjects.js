@@ -5,8 +5,14 @@ function Ship(length) {
     let hits = 0;
     function hit() { return hits++ };
     function isSunk() { return hits >= length };
+    let slot = [];
     
-    return { length, hit, isSunk, set location(loc) { return loc } }
+    return { 
+        length,
+        hit, 
+        isSunk, 
+         get slot() { return slot },
+         set slot(location) { slot = location } }
 }
 
 function Gameboard() {
@@ -33,15 +39,19 @@ function Gameboard() {
         return xAvail && yAvail
     }
 
-    function findSlot(ship, shipLocations) {
-        function locationAvail(coord, shipLocations) {
-            const allLocations = [...shipLocations.values()];
-            if (allLocations.length === 0) return true;
+    function findSlot(ship, shipObjects) {
 
-            const isSlotClear = allLocations
-                .every((location) => { return location
-                .every((space) => { return !coordMatches(coord,space) })
-            })
+        function locationAvail(coord, shipObjects) {
+            if (shipObjects.length === 0) return true;
+
+            const slots = [...shipObjects.map(ship => {return ship.slot})]
+            if (slots.length === 0) return true;
+
+            const isSlotClear = slots
+                .every((space) => { 
+                    if (!space) return true;
+                    else {return !coordMatches(coord,space) }
+                });
 
             return isSlotClear;
         }
@@ -64,7 +74,7 @@ function Gameboard() {
                 const pos = [xPos, yPos];
 
                 if (!isOnBoard(pos))  break 
-                if (!locationAvail(pos, shipLocations)) break 
+                if (!locationAvail(pos, shipObjects)) break 
 
                 slot.push(pos);
             }
@@ -77,18 +87,15 @@ function Gameboard() {
     }
 
     function createShips() {
+        
         const shipObjects = [];
-        shipLengths.map((length) => {shipObjects.push(Ship(length))})
-        const ships = new Map()
-        shipObjects.forEach((ship) => ships.set(ship,findSlot(ship, ships)))
-        return ships;
+        shipLengths.map((length) => {
+            const ship = Ship(length);
+            ship.slot = findSlot(ship, shipObjects);
+            shipObjects.push(ship)
+        })
+        return shipObjects;
     }
-
-    const shipInstances = createShips();
-    const hitSpaces =  {
-        openSpaces: [],
-        shipSpaces: []
-    };
 
     function receiveAttack(coord) {
         if (!isOnBoard(coord)) return false;
@@ -98,8 +105,8 @@ function Gameboard() {
         if (alreadyHit) return false;
 
         let foundShip = false;
-        for (const [ship, location] of shipInstances) {
-            const hitSpace = location
+        for (let ship of shipObjects) {
+            const hitSpace = ship.slot
                 .find((space) => coordMatches(coord, space));
             if (hitSpace) {
                 foundShip = true;
@@ -117,25 +124,20 @@ function Gameboard() {
     }
 
     function allShipsSunk() {
-        const allShips = [...shipInstances.keys()]
-        const allSunk = allShips.some((ship) => { ship.isSunk() })
-        return allSunk
+        return shipObjects.some((ship) => { ship.isSunk() })
     }
 
-    const privateBoard = createBoard();
     function updatePrivateBoard(privateBoard) {
-        const allLocations = [...shipInstances.values()]
-        allLocations.
-            forEach((location) => {
-                location.forEach(([x,y]) => privateBoard[x][y] = 'T');
+        shipObjects.
+            forEach((ship) => {
+                ship.slot.forEach(([x,y]) => privateBoard[x][y] = 'T');
             });
         hitSpaces.shipSpaces.forEach(([x,y]) => privateBoard[x][y] = 'X');
         hitSpaces.openSpaces.forEach(([x,y]) => privateBoard[x][y] = 'O');
 
         return privateBoard;
     }
-
-    const publicBoard = createBoard();
+    
     function updatePublicBoard(publicBoard) {
         hitSpaces.shipSpaces.forEach(([x,y]) => publicBoard[x][y] = 'X');
         hitSpaces.openSpaces.forEach(([x,y]) => publicBoard[x][y] = 'O');
@@ -146,13 +148,16 @@ function Gameboard() {
     function printPrivateBoard() { console.table(privateBoard) };
     function printPublicBoard() { console.table(publicBoard) };
 
+
+    const shipObjects = createShips();
+    const hitSpaces =  { openSpaces: [], shipSpaces: []};
+
+    const publicBoard = updatePublicBoard(createBoard());
+    const privateBoard = updatePrivateBoard(createBoard());
      
     return { receiveAttack, printPrivateBoard, printPublicBoard, allShipsSunk }
 }
 
-
-
 a = Gameboard();
-a.receiveAttack([0,0]);
 a.printPrivateBoard();
 a.printPublicBoard();
