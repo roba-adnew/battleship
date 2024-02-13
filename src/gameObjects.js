@@ -104,31 +104,45 @@ function Gameboard() {
         const alreadyHit = allHits.some((hit) => coordMatches(hit, coord));
         if (alreadyHit) return false;
 
-        
-        let foundShip = false;
         for (let ship of shipObjects) {
-            const hitSpace = ship.slot
-                .find((space) => coordMatches(coord, space));
-            if (hitSpace) {
-                foundShip = true;
+            const goodHit = ship.slot
+                .some((space) => coordMatches(coord, space));
+            if (goodHit) {
                 ship.hit();
-                hitSpaces.shipSpaces.push(hitSpace);
-                break;
+                const hit = { 'ship' : coord };
+                updateHitSpaces(hit);
+                return hit;
             }
         }
 
-        if(!foundShip) hitSpaces.openSpaces.push(coord);
-    
-        updatePrivateBoard(privateBoard);
-        updatePublicBoard(publicBoard);
-        return true;
+        const hit = { 'open' : coord };
+        updateHitSpaces(hit);
+        return hit;
+        
+    }
+
+    function updateHitSpaces(hit) {
+        const spaceType = Object.keys(hit)[0];
+        const coord = Object.values(hit)[0];
+        if (spaceType === 'ship') {
+            hitSpaces.shipSpaces.push(coord);
+        }
+        else if (spaceType === 'open') {
+            hitSpaces.openSpaces.push(coord);
+        }
+        else {
+            throw new Error('Updating hitspaces went wrong');
+        }
+        updatePrivateBoard();
+        updatePublicBoard();
     }
 
     function allShipsSunk() {
-        return shipObjects.some((ship) => { ship.isSunk() })
+        return shipObjects.every((ship) => { ship.isSunk() })
     }
 
-    function updatePrivateBoard(privateBoard) {
+    function updatePrivateBoard() {
+        const privateBoard = createBoard();
         shipObjects.
             forEach((ship) => {
                 ship.slot.forEach(([x,y]) => privateBoard[x][y] = 'T');
@@ -139,7 +153,8 @@ function Gameboard() {
         return privateBoard;
     }
     
-    function updatePublicBoard(publicBoard) {
+    function updatePublicBoard() {
+        const publicBoard = createBoard();
         hitSpaces.shipSpaces.forEach(([x,y]) => publicBoard[x][y] = 'X');
         hitSpaces.openSpaces.forEach(([x,y]) => publicBoard[x][y] = 'O');
 
@@ -153,46 +168,76 @@ function Gameboard() {
     const shipObjects = createShips();
     const hitSpaces =  { openSpaces: [], shipSpaces: []};
 
-    const publicBoard = updatePublicBoard(createBoard());
-    const privateBoard = updatePrivateBoard(createBoard());
+    const publicBoard = updatePublicBoard();
+    const privateBoard = updatePrivateBoard();
      
     return { receiveAttack, printPrivateBoard, printPublicBoard, allShipsSunk }
 }
 
-function Player(computerPlayer) {
-    function generateHit() {
-        if (!computerPlayer) return;
-
-        const attemptedHits = [];
-        let hit = Array
+function Player() {
+    function attemptHit(coord) {
+        if (coord) { return coord }
+        else {
+            const attemptedHits = [];
+            let hit = Array
             .from({length: 2}, () => Math.round(Math.random() * 9));
 
-        let isHitGood = false;
+            let isHitGood = false;
 
-        do {
-            let alreadyTried = attemptedHits.some((prevHit) => { 
-                return coordMatches(prevHit, hit) 
-            });
+            do {
+                let alreadyTried = attemptedHits.some((prevHit) => { 
+                    return coordMatches(prevHit, hit) 
+                });
 
-            if (alreadyTried) {
-                hit = Array
-                    .from({length: 2}, () => Math.round(Math.random() * 9));
+                if (alreadyTried) {
+                    hit = Array
+                        .from({length: 2}, () => Math.round(Math.random() * 9));
+                }
+                else {
+                    attemptedHits.push(hit)
+                    isHitGood = true;
+                }
             }
-            else {
-                attemptedHits.push(hit)
-                isHitGood = true;
-            }
+            while(!isHitGood)
+            
+            return hit  
         }
-        while(!isHitGood)
-        
-        return hit        
     }
 
-    
     const board = Gameboard();
 
-    return { board, generateHit }
+    return { board, attemptHit }
 }
 
-a = Player('a');
-console.log(a.generateHit());
+function kickoffGameplay(player1, player2) {
+    let winner;
+    let attackingPlayer = player1;
+    let receivingPlayer = player2;
+    do {
+        let hit = attackingPlayer.attemptHit();
+        let attackLanded = receivingPlayer.board.receiveAttack(hit)
+        if (!attackLanded) {
+            continue
+        }
+        else {
+            let spaceType = Object.keys(hit)[0]; 
+            if (spaceType === 'ship') {
+                // some logic
+                const isWinner = receivingPlayer.board.allShipsSunk();
+                if (!isWinner) winner = attackingPlayer;
+            }
+            else {
+                // some other logic 
+            attackingPlayer = attackingPlayer === player1 ? player2 : player1;
+            receivingPlayer = receivingPlayer === player1 ? player2 : player1;
+            }
+        }   
+    }
+    while (!winner)
+    return winner;
+}
+
+const a = Player();
+const b = Player();
+console.log(a.attemptHit());
+const game = kickoffGameplay(a,b)
