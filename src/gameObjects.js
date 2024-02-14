@@ -1,5 +1,3 @@
-// module.exports = { Ship, Gameboard }; 
-
 function coordMatches(coord1, coord2) {
     const xAvail = coord1[0] === coord2[0];
     const yAvail = coord1[1] === coord2[1];
@@ -37,6 +35,17 @@ function Gameboard() {
         const validX = coord[0] >= 0 && coord[0] < DIM; 
         const validY = coord[1] >= 0 && coord[1] < DIM;
         return validX && validY;
+    }
+
+    function createShips() {
+        
+        const shipObjects = [];
+        shipLengths.map((length) => {
+            const ship = Ship(length);
+            ship.slot = findSlot(ship, shipObjects);
+            shipObjects.push(ship)
+        })
+        return shipObjects;
     }
 
     function findSlot(ship, shipObjects) {
@@ -84,17 +93,6 @@ function Gameboard() {
         while (isBadSlot)
 
         return slot;
-    }
-
-    function createShips() {
-        
-        const shipObjects = [];
-        shipLengths.map((length) => {
-            const ship = Ship(length);
-            ship.slot = findSlot(ship, shipObjects);
-            shipObjects.push(ship)
-        })
-        return shipObjects;
     }
 
     function receiveAttack(coord) {
@@ -161,28 +159,30 @@ function Gameboard() {
         return publicBoard;
     }
 
-    function printPrivateBoard() { console.table(privateBoard) };
-    function printPublicBoard() { console.table(publicBoard) };
+    function printPrivateBoard() { 
+        const privateBoard = updatePrivateBoard(); 
+        console.table(privateBoard) 
+    };
+
+    function printPublicBoard() { 
+        const publicBoard = updatePublicBoard();
+        console.table(publicBoard) 
+    };
 
 
     const shipObjects = createShips();
     const hitSpaces =  { openSpaces: [], shipSpaces: []};
-
-    const publicBoard = updatePublicBoard();
-    const privateBoard = updatePrivateBoard();
      
-    return { receiveAttack, printPrivateBoard, printPublicBoard, allShipsSunk }
+    return { receiveAttack, printPrivateBoard, printPublicBoard, hitSpaces, allShipsSunk }
 }
 
-function Player() {
-    function attemptHit(coord) {
-        if (coord) { return coord }
-        else {
-            const attemptedHits = [];
-            let hit = Array
+function Player(isUser) {
+    function computerHit() {
+        const attemptedHits = [];
+        let hit = Array
             .from({length: 2}, () => Math.round(Math.random() * 9));
 
-            let isHitGood = false;
+        let isHitGood = false;
 
             do {
                 let alreadyTried = attemptedHits.some((prevHit) => { 
@@ -199,17 +199,25 @@ function Player() {
                 }
             }
             while(!isHitGood)
-            
-            return hit  
+        
+        return hit  
         }
-    }
 
+    function userHit() {
+        const stringCoord = prompt("Where do you want to attack?: ");
+        const xPos = parseInt(stringCoord.charAt(0));
+        const yPos = parseInt(stringCoord.charAt(1));
+        return [xPos, yPos]
+    }
+    
+    const attemptHit = isUser ? userHit : computerHit;
     const board = Gameboard();
 
     return { board, attemptHit }
 }
 
-function kickoffGameplay(player1, player2) {
+
+function gameplay(player1, player2) {
     let winner;
     let attackingPlayer = player1;
     let receivingPlayer = player2;
@@ -220,6 +228,8 @@ function kickoffGameplay(player1, player2) {
             continue
         }
         else {
+            receivingPlayer.board.printPrivateBoard();
+            attackingPlayer.board.printPublicBoard();
             let spaceType = Object.keys(hit)[0]; 
             if (spaceType === 'ship') {
                 // some logic
@@ -237,7 +247,6 @@ function kickoffGameplay(player1, player2) {
     return winner;
 }
 
-const a = Player();
+const a = Player('roba');
 const b = Player();
-console.log(a.attemptHit());
-const game = kickoffGameplay(a,b)
+gameplay(a,b);
