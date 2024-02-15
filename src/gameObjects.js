@@ -20,8 +20,11 @@ function Ship(length) {
 }
 
 function Gameboard() {
-    const DIM = 10;
-    const shipLengths = [4,3,3,2,2,2,1,1,1,1];
+    // const DIM = 10;
+    // const shipLengths = [4,3,3,2,2,2,1,1,1,1];
+
+    const DIM = 3;
+    const shipLengths = [2];
 
     function createBoard() {
         let board = Array(DIM)
@@ -59,7 +62,7 @@ function Gameboard() {
             const isSlotClear = slots
                 .every((space) => { 
                     if (!space) return true;
-                    else {return !coordMatches(coord,space) }
+                    else {!coordMatches(coord,space) }
                 });
 
             return isSlotClear;
@@ -75,7 +78,7 @@ function Gameboard() {
             const [xDir, yDir] = layoutDirections[rand];
 
             let [xStart, yStart] = Array
-                .from({length: 2}, () => Math.round(Math.random() * 9));
+                .from({length: 2}, () => Math.round(Math.random() * (DIM - 1)));
 
             for (let i = 0; i < ship.length; i++) {
                 const xPos = xStart + (i * xDir);
@@ -136,7 +139,7 @@ function Gameboard() {
     }
 
     function allShipsSunk() {
-        return shipObjects.every((ship) => { ship.isSunk() })
+        return shipObjects.every((ship) => { return ship.isSunk() })
     }
 
     function updatePrivateBoard() {
@@ -169,36 +172,36 @@ function Gameboard() {
         console.table(publicBoard) 
     };
 
-
     const shipObjects = createShips();
     const hitSpaces =  { openSpaces: [], shipSpaces: []};
      
-    return { receiveAttack, printPrivateBoard, printPublicBoard, hitSpaces, allShipsSunk }
+    return { receiveAttack, printPrivateBoard, printPublicBoard, get DIM() { return DIM} , hitSpaces, shipObjects, allShipsSunk }
 }
 
 function Player(isUser) {
     function computerHit() {
         const attemptedHits = [];
         let hit = Array
-            .from({length: 2}, () => Math.round(Math.random() * 9));
+            .from({length: 2}, () => Math.round(Math.random() * (board.DIM - 1)));
 
         let isHitGood = false;
 
-            do {
-                let alreadyTried = attemptedHits.some((prevHit) => { 
-                    return coordMatches(prevHit, hit) 
-                });
+        do {
+            let alreadyTried = attemptedHits.some((prevHit) => { 
+                return coordMatches(prevHit, hit) 
+            });
 
-                if (alreadyTried) {
-                    hit = Array
-                        .from({length: 2}, () => Math.round(Math.random() * 9));
-                }
-                else {
-                    attemptedHits.push(hit)
-                    isHitGood = true;
-                }
+            if (alreadyTried) {
+                hit = Array
+                    .from({length: 2}, 
+                        () => Math.round(Math.random() * (board.DIM - 1)));
             }
-            while(!isHitGood)
+            else {
+                attemptedHits.push(hit)
+                isHitGood = true;
+            }
+        }
+        while(!isHitGood)
         
         return hit  
         }
@@ -224,29 +227,19 @@ function gameplay(player1, player2) {
     do {
         let hit = attackingPlayer.attemptHit();
         let attackLanded = receivingPlayer.board.receiveAttack(hit)
-        if (!attackLanded) {
-            continue
+        if (!attackLanded) { continue }
+        
+        receivingPlayer.board.printPrivateBoard();
+        attackingPlayer.board.printPrivateBoard();
+        let spaceType = Object.keys(attackLanded)[0]; 
+        if (spaceType === 'ship') {
+            winner = receivingPlayer.board.allShipsSunk() 
+                ? attackingPlayer : undefined;
+            continue;
         }
-        else {
-            receivingPlayer.board.printPrivateBoard();
-            attackingPlayer.board.printPublicBoard();
-            let spaceType = Object.keys(hit)[0]; 
-            if (spaceType === 'ship') {
-                // some logic
-                const isWinner = receivingPlayer.board.allShipsSunk();
-                if (!isWinner) winner = attackingPlayer;
-            }
-            else {
-                // some other logic 
-            attackingPlayer = attackingPlayer === player1 ? player2 : player1;
-            receivingPlayer = receivingPlayer === player1 ? player2 : player1;
-            }
-        }   
+        attackingPlayer = attackingPlayer === player1 ? player2 : player1;
+        receivingPlayer = receivingPlayer === player1 ? player2 : player1; 
     }
     while (!winner)
     return winner;
 }
-
-const a = Player('roba');
-const b = Player();
-gameplay(a,b);
