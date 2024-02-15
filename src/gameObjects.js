@@ -20,11 +20,8 @@ function Ship(length) {
 }
 
 function Gameboard() {
-    // const DIM = 10;
-    // const shipLengths = [4,3,3,2,2,2,1,1,1,1];
-
-    const DIM = 3;
-    const shipLengths = [2];
+    const DIM = 8;
+    const shipLengths = [4,3,3,2,2,2,1,1,1,1];
 
     function createBoard() {
         let board = Array(DIM)
