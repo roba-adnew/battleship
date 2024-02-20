@@ -26,7 +26,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Getter Dunner',
+      title: 'battleship',
       filename: 'index.html',
       inject: 'body',
     })

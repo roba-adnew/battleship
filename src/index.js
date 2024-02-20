@@ -1,3 +1,4 @@
 import { buildNewGameButton } from './gameUI';
 
-buildNewGameButton();
+const button = buildNewGameButton();
+document.body.append(button);

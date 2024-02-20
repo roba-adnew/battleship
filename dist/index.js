@@ -1,3 +1,19 @@
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/gameObjects.js":
+/*!****************************!*\
+  !*** ./src/gameObjects.js ***!
+  \****************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Gameboard: () => (/* binding */ Gameboard),
+/* harmony export */   Player: () => (/* binding */ Player),
+/* harmony export */   gameplay: () => (/* binding */ gameplay)
+/* harmony export */ });
 function coordMatches(coord1, coord2) {
     const xAvail = coord1[0] === coord2[0];
     const yAvail = coord1[1] === coord2[1];
@@ -9,7 +25,7 @@ function Ship(length) {
     let hits = 0;
     function hit() { return hits++ };
     function isSunk() { return hits >= length };
-    let slot;
+    let slot = [];
     
     return { 
         length,
@@ -19,7 +35,7 @@ function Ship(length) {
          set slot(location) { slot = location } }
 }
 
-export function Gameboard() {
+function Gameboard() {
     const DIM = 8;
     const shipLengths = [4,3,3,2,2,2,1,1,1,1];
 
@@ -38,12 +54,13 @@ export function Gameboard() {
     }
 
     function createShips() {
+        
         const shipObjects = [];
         shipLengths.map((length) => {
-            let ship = Ship(length);
+            const ship = Ship(length);
             ship.slot = findSlot(ship, shipObjects);
-            shipObjects.push(ship);
-        });
+            shipObjects.push(ship)
+        })
         return shipObjects;
     }
 
@@ -52,18 +69,16 @@ export function Gameboard() {
         function locationAvail(coord, shipObjects) {
             if (shipObjects.length === 0) return true;
 
-            let shipSpaces = [...shipObjects.map(ship => {return ship.slot})]
-            shipSpaces = shipSpaces.flat();
-            
-            if (shipSpaces.length === 0) return true;
+            const slots = [...shipObjects.map(ship => {return ship.slot})]
+            if (slots.length === 0) return true;
 
-            const isCoordClear = shipSpaces
+            const isSlotClear = slots
                 .every((space) => { 
                     if (!space) return true;
-                    else { return !coordMatches(coord,space) }
+                    else {!coordMatches(coord,space) }
                 });
 
-            return isCoordClear;
+            return isSlotClear;
         }
 
         const layoutDirections = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -179,13 +194,13 @@ export function Gameboard() {
         updatePublicBoard,
         printPrivateBoard, 
         printPublicBoard, 
-        get DIM() { return DIM}, 
+        get DIM() { return DIM} , 
         hitSpaces, 
         shipObjects, 
         allShipsSunk }
 }
 
-export function Player(isUser) {
+function Player(isUser) {
     function computerHit() {
         const attemptedHits = [];
         let hit = Array
@@ -210,7 +225,7 @@ export function Player(isUser) {
         }
         while(!isHitGood)
         
-        return hit;  
+        return hit  
         }
 
     function userHit() {
@@ -250,3 +265,137 @@ function gameplay(player1, player2) {
     while (!winner)
     return winner;
 }
+
+/***/ }),
+
+/***/ "./src/gameUI.js":
+/*!***********************!*\
+  !*** ./src/gameUI.js ***!
+  \***********************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   buildNewGameButton: () => (/* binding */ buildNewGameButton)
+/* harmony export */ });
+/* harmony import */ var _gameObjects__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameObjects */ "./src/gameObjects.js");
+ 
+
+function buildElement(tag, id = '', innerHTML = '') {
+    const element = document.createElement(tag);
+    element.id = id;
+    element.innerHTML = innerHTML;
+    return element
+}
+
+function buildNewGameButton() {
+    const button = buildElement(
+        'button', 'starter', 'Start a new game');
+    button.addEventListener('click', renderGameBoards());
+    document.body.append(button)
+    return;
+
+}
+
+function renderGameBoards() {
+    const player = (0,_gameObjects__WEBPACK_IMPORTED_MODULE_0__.Player)(true);
+    const comp = (0,_gameObjects__WEBPACK_IMPORTED_MODULE_0__.Player)(false);
+
+    const playerBoard = player.updatePublicBoard();
+    const playerTable = buildElement('table','player');
+    const compBoard = comp.updatePublicBoard();
+    const compTable = buildElement('table','comp');
+
+    for (let i = 0; i < playerBoard.length; i++) {
+        const playerRow = buildElement('tr', `row(${i})`);
+        const compRow = buildElement('tr', `row(${i})`);
+        playerTable.append(playerRow);
+        compTable.append(compRow);
+        
+        for (let j = 0; j < playerBoard[i].length; j++) {
+            const cellID = `cell(${i},${j})`;
+            const playerCell = buildElement('td', cellID, playerBoard[i][j]);
+            const compCell = buildElement('td', cellID, compBoard[i][j]);
+            playerRow.append(playerCell);
+            compBoard.append(compCell);
+        }
+    }
+
+    document.body.append(playerBoard);
+    document.body.append(compBoard);
+}
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!**********************!*\
+  !*** ./src/index.js ***!
+  \**********************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _gameUI__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameUI */ "./src/gameUI.js");
+
+
+(0,_gameUI__WEBPACK_IMPORTED_MODULE_0__.buildNewGameButton)();
+})();
+
+/******/ })()
+;
+//# sourceMappingURL=index.js.map
