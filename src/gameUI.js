@@ -14,25 +14,37 @@ export function buildNewGameButton() {
     return button;
 }
 
-export function renderGameBoards() {
-    const player = Player('anything');
-    const comp = Player(false);
+const player = Player();
+const comp = Player();
 
-    const playerBoard = player.board.updatePublicBoard();
+export function renderGameBoards() {
+    document.body.replaceChildren()
+
+    let playerBoard = player.board.updatePublicBoard();
     const playerTable = createElement('table','player');
-    const compBoard = comp.board.updatePublicBoard();
+    let compBoard = comp.board.updatePublicBoard();
     const compTable = createElement('table','comp');
 
     for (let i = 0; i < playerBoard.length; i++) {
-        const playerRow = createElement('tr', `row(${i})`);
-        const compRow = createElement('tr', `row(${i})`);
+        const playerRow = createElement('tr', `row[${i}]`);
+        const compRow = createElement('tr', `row[${i}]`);
         playerTable.append(playerRow);
         compTable.append(compRow);
         
         for (let j = 0; j < playerBoard[i].length; j++) {
-            const cellID = `cell(${i},${j})`;
+            const cellID = `[${i},${j}]`;
             const playerCell = createElement('td', cellID, playerBoard[i][j]);
-            const compCell = createElement('td', cellID, compBoard[i][j]);
+
+            const compCell = createElement('td', cellID);
+            const gameButton = createElement('button', cellID, compBoard[i][j]);
+            gameButton.addEventListener('click', () => {
+                comp.board.receiveAttack([i,j]);
+                comp.board.printPrivateBoard();
+                compBoard = comp.board.updatePublicBoard();
+                gameButton.innerHTML = compBoard[i][j];
+            });
+            compCell.append(gameButton);
+
             playerRow.append(playerCell);
             compRow.append(compCell);
         }

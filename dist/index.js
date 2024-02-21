@@ -11,8 +11,7 @@
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   Gameboard: () => (/* binding */ Gameboard),
-/* harmony export */   Player: () => (/* binding */ Player),
-/* harmony export */   gameplay: () => (/* binding */ gameplay)
+/* harmony export */   Player: () => (/* binding */ Player)
 /* harmony export */ });
 function coordMatches(coord1, coord2) {
     const xAvail = coord1[0] === coord2[0];
@@ -25,7 +24,7 @@ function Ship(length) {
     let hits = 0;
     function hit() { return hits++ };
     function isSunk() { return hits >= length };
-    let slot = [];
+    let slot;
     
     return { 
         length,
@@ -54,13 +53,12 @@ function Gameboard() {
     }
 
     function createShips() {
-        
         const shipObjects = [];
         shipLengths.map((length) => {
-            const ship = Ship(length);
+            let ship = Ship(length);
             ship.slot = findSlot(ship, shipObjects);
-            shipObjects.push(ship)
-        })
+            shipObjects.push(ship);
+        });
         return shipObjects;
     }
 
@@ -69,16 +67,18 @@ function Gameboard() {
         function locationAvail(coord, shipObjects) {
             if (shipObjects.length === 0) return true;
 
-            const slots = [...shipObjects.map(ship => {return ship.slot})]
-            if (slots.length === 0) return true;
+            let shipSpaces = [...shipObjects.map(ship => {return ship.slot})]
+            shipSpaces = shipSpaces.flat();
+            
+            if (shipSpaces.length === 0) return true;
 
-            const isSlotClear = slots
+            const isCoordClear = shipSpaces
                 .every((space) => { 
                     if (!space) return true;
-                    else {!coordMatches(coord,space) }
+                    else { return !coordMatches(coord,space) }
                 });
 
-            return isSlotClear;
+            return isCoordClear;
         }
 
         const layoutDirections = [[0,1],[0,-1],[-1,0],[1,0]]
@@ -194,7 +194,7 @@ function Gameboard() {
         updatePublicBoard,
         printPrivateBoard, 
         printPublicBoard, 
-        get DIM() { return DIM} , 
+        get DIM() { return DIM}, 
         hitSpaces, 
         shipObjects, 
         allShipsSunk }
@@ -225,7 +225,7 @@ function Player(isUser) {
         }
         while(!isHitGood)
         
-        return hit  
+        return hit;  
         }
 
     function userHit() {
@@ -276,12 +276,14 @@ function gameplay(player1, player2) {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   buildNewGameButton: () => (/* binding */ buildNewGameButton)
+/* harmony export */   buildNewGameButton: () => (/* binding */ buildNewGameButton),
+/* harmony export */   createElement: () => (/* binding */ createElement),
+/* harmony export */   renderGameBoards: () => (/* binding */ renderGameBoards)
 /* harmony export */ });
 /* harmony import */ var _gameObjects__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameObjects */ "./src/gameObjects.js");
  
 
-function buildElement(tag, id = '', innerHTML = '') {
+function createElement(tag, id = '', innerHTML = '') {
     const element = document.createElement(tag);
     element.id = id;
     element.innerHTML = innerHTML;
@@ -289,40 +291,38 @@ function buildElement(tag, id = '', innerHTML = '') {
 }
 
 function buildNewGameButton() {
-    const button = buildElement(
+    const button = createElement(
         'button', 'starter', 'Start a new game');
-    button.addEventListener('click', renderGameBoards());
-    document.body.append(button)
-    return;
-
+    button.addEventListener('click', renderGameBoards);
+    return button;
 }
 
 function renderGameBoards() {
-    const player = (0,_gameObjects__WEBPACK_IMPORTED_MODULE_0__.Player)(true);
+    const player = (0,_gameObjects__WEBPACK_IMPORTED_MODULE_0__.Player)('anything');
     const comp = (0,_gameObjects__WEBPACK_IMPORTED_MODULE_0__.Player)(false);
 
-    const playerBoard = player.updatePublicBoard();
-    const playerTable = buildElement('table','player');
-    const compBoard = comp.updatePublicBoard();
-    const compTable = buildElement('table','comp');
+    const playerBoard = player.board.updatePublicBoard();
+    const playerTable = createElement('table','player');
+    const compBoard = comp.board.updatePublicBoard();
+    const compTable = createElement('table','comp');
 
     for (let i = 0; i < playerBoard.length; i++) {
-        const playerRow = buildElement('tr', `row(${i})`);
-        const compRow = buildElement('tr', `row(${i})`);
+        const playerRow = createElement('tr', `row(${i})`);
+        const compRow = createElement('tr', `row(${i})`);
         playerTable.append(playerRow);
         compTable.append(compRow);
         
         for (let j = 0; j < playerBoard[i].length; j++) {
             const cellID = `cell(${i},${j})`;
-            const playerCell = buildElement('td', cellID, playerBoard[i][j]);
-            const compCell = buildElement('td', cellID, compBoard[i][j]);
+            const playerCell = createElement('td', cellID, playerBoard[i][j]);
+            const compCell = createElement('td', cellID, compBoard[i][j]);
             playerRow.append(playerCell);
-            compBoard.append(compCell);
+            compRow.append(compCell);
         }
     }
 
-    document.body.append(playerBoard);
-    document.body.append(compBoard);
+    document.body.append(playerTable);
+    document.body.append(compTable);
 }
 
 /***/ })
@@ -393,7 +393,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _gameUI__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./gameUI */ "./src/gameUI.js");
 
 
-(0,_gameUI__WEBPACK_IMPORTED_MODULE_0__.buildNewGameButton)();
+const button = (0,_gameUI__WEBPACK_IMPORTED_MODULE_0__.buildNewGameButton)();
+document.body.append(button);
 })();
 
 /******/ })()

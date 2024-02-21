@@ -185,8 +185,10 @@ export function Gameboard() {
         allShipsSunk }
 }
 
-export function Player(isUser) {
-    function computerHit() {
+export function Player() {
+    function attemptHit(userInput) {
+        if (userInput) return userInput;
+
         const attemptedHits = [];
         let hit = Array
             .from({length: 2}, () => Math.round(Math.random() * (board.DIM - 1)));
@@ -212,15 +214,7 @@ export function Player(isUser) {
         
         return hit;  
         }
-
-    function userHit() {
-        const stringCoord = prompt("Where do you want to attack?: ");
-        const xPos = parseInt(stringCoord.charAt(0));
-        const yPos = parseInt(stringCoord.charAt(1));
-        return [xPos, yPos]
-    }
     
-    const attemptHit = isUser ? userHit : computerHit;
     const board = Gameboard();
 
     return { board, attemptHit }
