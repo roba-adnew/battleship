@@ -185,10 +185,8 @@ export function Gameboard() {
         allShipsSunk }
 }
 
-export function Player() {
-    function attemptHit(userInput) {
-        if (userInput) return userInput;
-
+export function Player(isHuman) {
+    function computerHit() {
         const attemptedHits = [];
         let hit = Array
             .from({length: 2}, () => Math.round(Math.random() * (board.DIM - 1)));
@@ -214,33 +212,16 @@ export function Player() {
         
         return hit;  
         }
+
+    function userHit() {
+        const stringCoord = prompt("Where do you want to attack?: ");
+        const xPos = parseInt(stringCoord.charAt(0));
+        const yPos = parseInt(stringCoord.charAt(1));
+        return [xPos, yPos]
+    }
     
+    const attemptHit = isHuman ? userHit : computerHit;
     const board = Gameboard();
 
     return { board, attemptHit }
-}
-
-
-function gameplay(player1, player2) {
-    let winner;
-    let attackingPlayer = player1;
-    let receivingPlayer = player2;
-    do {
-        let hit = attackingPlayer.attemptHit();
-        let attackLanded = receivingPlayer.board.receiveAttack(hit)
-        if (!attackLanded) { continue }
-        
-        receivingPlayer.board.printPrivateBoard();
-        attackingPlayer.board.printPrivateBoard();
-        let spaceType = Object.keys(attackLanded)[0]; 
-        if (spaceType === 'ship') {
-            winner = receivingPlayer.board.allShipsSunk() 
-                ? attackingPlayer : undefined;
-            continue;
-        }
-        attackingPlayer = attackingPlayer === player1 ? player2 : player1;
-        receivingPlayer = receivingPlayer === player1 ? player2 : player1; 
-    }
-    while (!winner)
-    return winner;
 }
