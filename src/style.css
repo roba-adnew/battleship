@@ -1,5 +1,29 @@
 td {
     border: 1px solid black;
     padding: 8px;
-    width: 200px;
+    width: 40px;
+    height: 40px
   }
+
+#starterDiv {
+  display: flex;
+  height: 80vh;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+#starter {
+  border: 5px solid red;
+  font-size: 50px;
+}
+
+#parent {
+  display: flex;
+  height: 90vh;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  
+}

@@ -1,4 +1,4 @@
-import { Player, Gameboard } from "./gameObjects"; 
+import { Player } from "./gameObjects"; 
 
 let player, comp;
 
@@ -13,20 +13,26 @@ function startNewGame () {
     player = Player(true);
     comp = Player();
     document.body.replaceChildren();
-    renderGameBoard(player, comp);
-    renderGameBoard(comp, player); 
+    const gameBoard = createElement('div','parent');
+    const playerBoard = renderGameBoard(player, comp);
+    const compBoard = renderGameBoard(comp, player); 
+    gameBoard.append(playerBoard);
+    gameBoard.append(compBoard);
+    document.body.append(gameBoard);
 }
 
 export function buildNewGameButton() {
+    const buttonDiv = createElement('div', 'starterDiv');
     const button = createElement(
-        'button', 'starter', 'Start a new game');
+        'button', 'starter', 'LETS GO TO WAR!');
     button.addEventListener('click', startNewGame, { once : true});
-    return button;
+    buttonDiv.append(button)
+    return buttonDiv;
 }
 
 export function renderGameBoard(player, opponent) {
-    const playerName = player.attemptHit.name.slice(0,-3)
-;    const isComputer = player.attemptHit.name === 'computerHit';
+    const playerName = player.attemptHit.name.slice(0,-3);
+    const isComputer = player.attemptHit.name === 'computerHit';
     let board = player.board.updatePublicBoard();
     const boardUI = createElement('table', playerName);
 
@@ -93,5 +99,5 @@ export function renderGameBoard(player, opponent) {
         }
     }
 
-    document.body.append(boardUI);
+    return boardUI;
 }
