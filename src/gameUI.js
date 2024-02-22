@@ -34,7 +34,9 @@ export function renderGameBoard(player, opponent) {
     const playerName = player.attemptHit.name.slice(0,-3);
     const isComputer = player.attemptHit.name === 'computerHit';
     let board = player.board.updatePublicBoard();
-    const boardUI = createElement('table', playerName);
+    const boardDiv = createElement('div', `${playerName}Div`);
+    const boardUI = createElement('table', `${playerName}Table`);
+    boardDiv.append(boardUI);
 
     for (let i = 0; i < board.length; i++) {
         const boardRow = createElement('tr', `${playerName}[${i}]`);
@@ -47,6 +49,7 @@ export function renderGameBoard(player, opponent) {
             if (isComputer) {
                 boardCell.innerHTML = '';
                 const cellButton = createElement('button', cellID, board[i][j]);
+                cellButton.classList.add(`${playerName}Cell`)
                 cellButton.addEventListener('click', () => {
                 
                     let winner;
@@ -99,5 +102,9 @@ export function renderGameBoard(player, opponent) {
         }
     }
 
-    return boardUI;
+    const displayName = playerName === 'user' ? 'our ships' : 'ENEMY SHIPS!';
+    const tableTitle = createElement('div',`${playerName}Display`, displayName);
+    boardDiv.append(tableTitle);
+
+    return boardDiv;
 }
