@@ -117,7 +117,6 @@ export function Gameboard() {
         const hit = { 'open' : coord };
         updateHitSpaces(hit);
         return hit;
-        
     }
 
     function updateHitSpaces(hit) {
@@ -155,7 +154,7 @@ export function Gameboard() {
     function updatePublicBoard() {
         const publicBoard = createBoard();
         hitSpaces.shipSpaces.forEach(([x,y]) => publicBoard[x][y] = 'X');
-        hitSpaces.openSpaces.forEach(([x,y]) => publicBoard[x][y] = 'O');
+        hitSpaces.openSpaces.forEach(([x,y]) => publicBoard[x][y] = '_');
 
         return publicBoard;
     }
@@ -185,9 +184,9 @@ export function Gameboard() {
         allShipsSunk }
 }
 
+const attemptedHits = [];
 export function Player(isHuman) {
     function computerHit() {
-        const attemptedHits = [];
         let hit = Array
             .from({length: 2}, () => Math.round(Math.random() * (board.DIM - 1)));
 
@@ -213,12 +212,7 @@ export function Player(isHuman) {
         return hit;  
         }
 
-    function userHit() {
-        const stringCoord = prompt("Where do you want to attack?: ");
-        const xPos = parseInt(stringCoord.charAt(0));
-        const yPos = parseInt(stringCoord.charAt(1));
-        return [xPos, yPos]
-    }
+    function userHit(coord) {return coord};
     
     const attemptHit = isHuman ? userHit : computerHit;
     const board = Gameboard();
