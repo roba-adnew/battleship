@@ -1,4 +1,4 @@
-import { Player } from "./gameObjects"; 
+import { Player, coordMatches } from "./gameObjects"; 
 
 let player, comp;
 
@@ -37,6 +37,11 @@ export function renderGameBoard(player, opponent) {
     const boardDiv = createElement('div', `${playerName}Div`);
     const boardUI = createElement('table', `${playerName}Table`);
     boardDiv.append(boardUI);
+
+    const shipSpaces = [];
+    player.board.shipObjects.map(
+        (ship) => {ship.slot.map((space) => shipSpaces.push(space))}
+    );
 
     for (let i = 0; i < board.length; i++) {
         const boardRow = createElement('tr', `${playerName}[${i}]`);
@@ -96,6 +101,16 @@ export function renderGameBoard(player, opponent) {
                 
                 }, { once : true});
                 boardCell.append(cellButton);
+            }
+            else if (!isComputer) {
+                const isShip = shipSpaces.some(
+                    (space) => {return coordMatches(space,[i,j])})
+                if (isShip) {
+                    boardCell.classList.add('ship')
+                }
+                else {
+                    boardCell.classList.add('open')
+                }
             }
         
             boardRow.append(boardCell);

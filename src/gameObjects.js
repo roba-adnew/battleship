@@ -1,4 +1,4 @@
-function coordMatches(coord1, coord2) {
+export function coordMatches(coord1, coord2) {
     const xAvail = coord1[0] === coord2[0];
     const yAvail = coord1[1] === coord2[1];
     return xAvail && yAvail
