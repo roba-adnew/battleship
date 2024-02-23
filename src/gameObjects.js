@@ -176,8 +176,6 @@ export function Gameboard() {
         receiveAttack, 
         updatePrivateBoard,
         updatePublicBoard,
-        printPrivateBoard, 
-        printPublicBoard, 
         get DIM() { return DIM}, 
         hitSpaces, 
         shipObjects, 

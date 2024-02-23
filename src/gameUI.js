@@ -21,10 +21,9 @@ function startNewGame () {
     document.body.append(gameBoard);
 }
 
-export function buildNewGameButton() {
-    const buttonDiv = createElement('div', 'starterDiv');
-    const button = createElement(
-        'button', 'starter', 'LETS GO TO WAR!');
+export function buildNewGameButton(divId = 'starterDiv', buttonText = 'LETS GO TO WAR!') {
+    const buttonDiv = createElement('div', divId);
+    const button = createElement('button', 'starter', buttonText);
     button.addEventListener('click', startNewGame, { once : true});
     buttonDiv.append(button)
     return buttonDiv;
@@ -58,8 +57,8 @@ export function renderGameBoard(player, opponent) {
                 cellButton.addEventListener('click', () => {         
                     let winner;
                     const attackDetails = player.board.receiveAttack([i,j]);
-                    player.board.printPrivateBoard();
-                    board = player.board.updatePublicBoard();
+                    player.board.updatePublicBoard();
+                    player.board.updatePrivateBoard();
                 
                     let spaceType = Object.keys(attackDetails)[0]; 
                     if (spaceType === 'ship') {
@@ -73,9 +72,14 @@ export function renderGameBoard(player, opponent) {
                         cellButton.classList.add('badHit');
                     }
                     if (winner) {
-                        alert('You won!'); 
-                        document.body.replaceChildren();
-                        document.body.append(buildNewGameButton());
+                        const winnerMessage = 'YOU ARE MAGNIFICENT, YOU WON!';
+                        const winnerBanner = createElement('div','won',winnerMessage);
+                        document.body.prepend(winnerBanner);
+
+                        const newButton = buildNewGameButton('newStarterDiv', 'MORE WAR!');
+                        const parent = document.getElementById('parent');
+                        const compDiv = document.getElementById('computerDiv');
+                        parent.insertBefore(newButton, compDiv);
                         return;
                     }
                 
@@ -87,8 +91,8 @@ export function renderGameBoard(player, opponent) {
                     const cellHtmlId = `user[${x},${y}]`;
                     const attackedCell = document.getElementById(cellHtmlId);
 
-                    opponent.board.printPrivateBoard();
-                    const playerBoard = opponent.board.updatePublicBoard();
+                    opponent.board.updatePublicBoard();
+                    opponent.board.updatePublicBoard();
                     
                     if (spaceType === 'ship') {
                         attackedCell.classList.replace('ship', 'goodHit');
@@ -99,9 +103,14 @@ export function renderGameBoard(player, opponent) {
                         attackedCell.classList.add('badHit');
                     }
                     if (winner) {
-                        alert('You lost!'); 
-                        document.body.replaceChildren();
-                        document.body.append(buildNewGameButton());
+                        const loserMessage = 'YOU LOST?!...you lost';
+                        const loserBanner = createElement('div','lost',loserMessage);
+                        document.body.prepend(loserBanner);
+
+                        const newButton = buildNewGameButton('newStarterDiv', 'REVENGE');
+                        const parent = document.getElementById('parent');
+                        const compDiv = document.getElementById('computerDiv');
+                        parent.insertBefore(newButton, compDiv);
                         return;
                     }
                 

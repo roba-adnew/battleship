@@ -19,7 +19,13 @@ table {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  
+}
+
+#newStarterDiv {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
 #starter {
@@ -62,4 +68,18 @@ td.ship {
 
 .badHit {
   background-color: rgb(148, 187, 228);
+}
+
+#lost {
+  padding-top: 40px;
+  text-align: center;
+  font-size: 30px;
+  color: red;
+}
+
+#won {
+  padding-top: 40px;
+  text-align: center;
+  font-size: 30px;
+  color: green;
 }
