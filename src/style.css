@@ -55,3 +55,11 @@ table {
 td.ship {
   background-color: rgb(116, 229, 116);
 }
+
+.goodHit {
+  background-color: red;
+}
+
+.badHit {
+  background-color: rgb(148, 187, 228);
+}

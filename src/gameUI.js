@@ -55,18 +55,22 @@ export function renderGameBoard(player, opponent) {
                 boardCell.innerHTML = '';
                 const cellButton = createElement('button', cellID, board[i][j]);
                 cellButton.classList.add(`${playerName}Cell`)
-                cellButton.addEventListener('click', () => {
-                
+                cellButton.addEventListener('click', () => {         
                     let winner;
                     const attackDetails = player.board.receiveAttack([i,j]);
                     player.board.printPrivateBoard();
                     board = player.board.updatePublicBoard();
-                    cellButton.innerHTML = board[i][j];
                 
                     let spaceType = Object.keys(attackDetails)[0]; 
                     if (spaceType === 'ship') {
+                        boardCell.classList.add('goodHit');
+                        cellButton.classList.add('goodHit');
                         winner = player.board.allShipsSunk() 
                             ? opponent : undefined;
+                    }
+                    else {
+                        boardCell.classList.add('badHit');
+                        cellButton.classList.add('badHit');
                     }
                     if (winner) {
                         alert('You won!'); 
@@ -82,15 +86,17 @@ export function renderGameBoard(player, opponent) {
                     
                     const cellHtmlId = `user[${x},${y}]`;
                     const attackedCell = document.getElementById(cellHtmlId);
-                    const attackRender = spaceType === 'ship' ? 'X' : '_';
-                    attackedCell.innerHTML = attackRender;
 
                     opponent.board.printPrivateBoard();
                     const playerBoard = opponent.board.updatePublicBoard();
                     
                     if (spaceType === 'ship') {
+                        attackedCell.classList.replace('ship', 'goodHit');
                         winner = opponent.board.allShipsSunk() 
                             ? player : undefined;
+                    }
+                    else {
+                        attackedCell.classList.add('badHit');
                     }
                     if (winner) {
                         alert('You lost!'); 
