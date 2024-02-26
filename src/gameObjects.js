@@ -100,7 +100,9 @@ export function Gameboard() {
         if (!isOnBoard(coord)) return false;
         
         const allHits = [...hitSpaces.openSpaces, ...hitSpaces.shipSpaces];
-        const alreadyHit = allHits.some((hit) => coordMatches(hit, coord));
+        const alreadyHit = allHits.some(
+            (hit) =>  {return coordMatches(hit, coord)});
+            
         if (alreadyHit) return false;
 
         for (let ship of shipObjects) {

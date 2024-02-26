@@ -21,7 +21,7 @@ function startNewGame () {
     document.body.append(gameBoard);
 }
 
-export function buildNewGameButton(divId = 'starterDiv', buttonText = 'LETS GO TO WAR!') {
+function buildNewGameButton(divId = 'starterDiv', buttonText = 'LETS GO TO WAR!') {
     const buttonDiv = createElement('div', divId);
     const button = createElement('button', 'starter', buttonText);
     button.addEventListener('click', startNewGame, { once : true});
@@ -29,7 +29,7 @@ export function buildNewGameButton(divId = 'starterDiv', buttonText = 'LETS GO T
     return buttonDiv;
 }
 
-export function renderGameBoard(player, opponent) {
+function renderGameBoard(player, opponent) {
     const playerName = player.attemptHit.name.slice(0,-3);
     const isComputer = player.attemptHit.name === 'computerHit';
     let board = player.board.updatePublicBoard();
@@ -118,9 +118,9 @@ export function renderGameBoard(player, opponent) {
                 boardCell.append(cellButton);
             }
             else if (!isComputer) {
-                const isShip = shipSpaces.some(
+                const isShipSpace = shipSpaces.some(
                     (space) => {return coordMatches(space,[i,j])})
-                if (isShip) {
+                if (isShipSpace) {
                     boardCell.classList.add('ship')
                 }
                 else {
